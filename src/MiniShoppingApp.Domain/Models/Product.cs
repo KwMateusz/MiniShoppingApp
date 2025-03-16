@@ -1,4 +1,4 @@
-﻿namespace MiniShoppingApp.Models;
+﻿namespace MiniShoppingApp.Domain.Models;
 
 public class Product
 {

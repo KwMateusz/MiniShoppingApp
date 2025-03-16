@@ -1,4 +1,4 @@
-using MiniShoppingApp.Services;
+using MiniShoppingApp.UI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -1,8 +1,8 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using MiniShoppingApp.Models;
+using MiniShoppingApp.Domain.Models;
 
-namespace MiniShoppingApp.Controllers;
+namespace MiniShoppingApp.UI.Controllers;
 
 public class HomeController : Controller
 {

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using MiniShoppingApp.Services;
+using MiniShoppingApp.UI.Services;
 
-namespace MiniShoppingApp.Controllers;
+namespace MiniShoppingApp.UI.Controllers;
 
 public class ProductController : Controller
 {

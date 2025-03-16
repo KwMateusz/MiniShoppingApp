@@ -18,4 +18,4 @@ out/
 node_modules/
 
 # Ignore specific wwwroot directories
-wwwroot/lib/
+src/MiniShoppingApp.UI/wwwroot/lib/

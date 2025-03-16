@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
-using MiniShoppingApp.Models;
+using MiniShoppingApp.Domain.Models;
 
-namespace MiniShoppingApp.Services;
+namespace MiniShoppingApp.UI.Services;
 
 public class ProductService
 {
