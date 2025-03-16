@@ -1,9 +1,13 @@
 using MiniShoppingApp.Application.Interfaces;
 using MiniShoppingApp.Application.Services;
+using MiniShoppingApp.Infrastructure.Configuration;
 using MiniShoppingApp.Infrastructure.Repositories;
 using MiniShoppingApp.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Bind ApiSettings from appsettings.json
+builder.Services.Configure<ApiSettings>(builder.Configuration.GetSection("ApiSettings"));
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
