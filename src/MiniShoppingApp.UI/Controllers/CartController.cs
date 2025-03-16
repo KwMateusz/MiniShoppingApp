@@ -3,40 +3,40 @@ using MiniShoppingApp.Application.Interfaces;
 
 namespace MiniShoppingApp.UI.Controllers;
 
-public class CartController(IProductService productService) : Controller
+public class CartController(ICartService cartService) : Controller
 {
     public IActionResult Index()
     {
-        ViewBag.TotalPrice = productService.GetCartItems().Sum(item => item.Product.Price * item.Quantity);
+        ViewBag.TotalPrice = cartService.GetCartItems().Sum(item => item.Product.Price * item.Quantity);
 
-        return View(productService.GetCartItems().ToList());
+        return View(cartService.GetCartItems().ToList());
     }
 
     [HttpGet]
     public IActionResult GetCartCount()
     {
-        return Json(new { cartCount = productService.GetCartItemCount() });
+        return Json(new { cartCount = cartService.GetCartItemCount() });
     }
 
     [HttpGet]
     public IActionResult GetProductQuantity(int productId)
     {
-        return Json(new { productQuantity = productService.GetProductQuantity(productId) });
+        return Json(new { productQuantity = cartService.GetProductQuantity(productId) });
     }
 
     [HttpPost]
     public async Task<IActionResult> AddToCart(int productId)
     {
-        var success = await productService.AddToCart(productId);
+        var success = await cartService.AddToCart(productId);
 
-        return Json(new { success, cartCount = productService.GetCartItemCount(), productQuantity = productService.GetProductQuantity(productId) });
+        return Json(new { success, cartCount = cartService.GetCartItemCount(), productQuantity = cartService.GetProductQuantity(productId) });
     }
 
     [HttpPost]
     public IActionResult RemoveFromCart(int productId)
     {
-        var success = productService.RemoveFromCart(productId);
+        var success = cartService.RemoveFromCart(productId);
 
-        return Json(new { success, cartCount = productService.GetCartItemCount(), productQuantity = productService.GetProductQuantity(productId) });
+        return Json(new { success, cartCount = cartService.GetCartItemCount(), productQuantity = cartService.GetProductQuantity(productId) });
     }
 }

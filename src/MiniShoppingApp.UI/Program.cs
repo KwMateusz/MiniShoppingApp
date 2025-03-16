@@ -1,6 +1,7 @@
 using MiniShoppingApp.Application.Interfaces;
 using MiniShoppingApp.Application.Services;
 using MiniShoppingApp.Infrastructure.Repositories;
+using MiniShoppingApp.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +10,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddHttpClient<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<ICartService, CartService>();
 
 var app = builder.Build();
 
