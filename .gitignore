@@ -1,0 +1,21 @@
+# Ignore Visual Studio and Rider files
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+.idea/
+
+# Ignore build output
+bin/
+obj/
+out/
+
+# Ignore .NET Core dependency folders
+*.vs/
+*.DS_Store
+*.db
+node_modules/
+
+# Ignore specific wwwroot directories
+wwwroot/lib/
