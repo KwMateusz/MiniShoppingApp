@@ -1,13 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using MiniShoppingApp.UI.Services;
+using MiniShoppingApp.Application.Interfaces;
 
 namespace MiniShoppingApp.UI.Controllers;
 
 public class ProductController : Controller
 {
-    private readonly ProductService _productService;
+    private readonly IProductService _productService;
 
-    public ProductController(ProductService productService)
+    public ProductController(IProductService productService)
     {
         _productService = productService;
     }

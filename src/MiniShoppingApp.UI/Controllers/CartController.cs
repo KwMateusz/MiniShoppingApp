@@ -1,15 +1,15 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using MiniShoppingApp.Application.Interfaces;
 using MiniShoppingApp.Domain.Models;
-using MiniShoppingApp.UI.Services;
 
 namespace MiniShoppingApp.UI.Controllers;
 
 public class CartController : Controller
 {
     private static List<CartItem> Cart = new List<CartItem>();
-    private readonly ProductService _productService;
+    private readonly IProductService _productService;
 
-    public CartController(ProductService productService)
+    public CartController(IProductService productService)
     {
         _productService = productService;
     }

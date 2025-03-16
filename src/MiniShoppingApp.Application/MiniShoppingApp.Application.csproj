@@ -2,8 +2,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MiniShoppingApp.Domain\MiniShoppingApp.Domain.csproj" />
-    <ProjectReference Include="..\MiniShoppingApp.Infrastructure\MiniShoppingApp.Infrastructure.csproj" />
   </ItemGroup>
+
+
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>

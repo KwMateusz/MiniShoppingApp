@@ -1,11 +1,14 @@
-using MiniShoppingApp.UI.Services;
+using MiniShoppingApp.Application.Interfaces;
+using MiniShoppingApp.Application.Services;
+using MiniShoppingApp.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-builder.Services.AddHttpClient<ProductService>();
-builder.Services.AddSingleton<ProductService>();
+builder.Services.AddHttpClient<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<IProductService, ProductService>();
 
 var app = builder.Build();
 
