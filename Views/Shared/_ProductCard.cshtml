@@ -9,23 +9,11 @@
                 <p class="card-text text-muted">@Model.Category</p>
                 <p class="card-text"><strong>Price:</strong> $@Model.Price</p>
             </div>
-            <div>
-                @if (ViewData["IsCart"] as bool? == true)
-                {
-                    <form asp-controller="Cart" asp-action="RemoveFromCart" method="post">
-                        <input type="hidden" name="productId" value="@Model.Id"/>
-                        <button type="submit" class="btn btn-danger w-100">Remove</button>
-                    </form>
-                }
-                else
-                {
-                    <form asp-controller="Cart" asp-action="AddToCart" method="post">
-                        <input type="hidden" name="productId" value="@Model.Id"/>
-                        <button type="button" class="btn btn-primary w-100 add-to-cart" data-product-id="@Model.Id">
-                            Add to Cart
-                        </button>
-                    </form>
-                }
+            <div class="d-flex justify-content-center">
+                <!-- Container for dynamic cart buttons -->
+                <div id="cart-controls-@Model.Id" class="w-100">
+                    <button class="btn btn-primary w-100 add-to-cart" data-product-id="@Model.Id">Add to Cart</button>
+                </div>
             </div>
         </div>
     </div>
