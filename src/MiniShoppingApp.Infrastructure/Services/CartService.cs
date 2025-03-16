@@ -5,7 +5,7 @@ namespace MiniShoppingApp.Infrastructure.Services;
 
 public class CartService(IProductRepository productRepository) : ICartService
 {
-    private static readonly List<CartItem> Cart = new();
+    private static readonly List<CartItem> Cart = new(); // TODO: Change implementation to not share it with other clients
 
     public ICollection<CartItem> GetCartItems()
     {
