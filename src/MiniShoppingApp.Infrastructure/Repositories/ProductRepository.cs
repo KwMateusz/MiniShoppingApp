@@ -5,28 +5,20 @@ using Microsoft.Extensions.Logging;
 
 namespace MiniShoppingApp.Infrastructure.Repositories;
 
-public class ProductRepository : IProductRepository
+public class ProductRepository(HttpClient httpClient, ILogger<ProductRepository> logger) : IProductRepository
 {
-    private readonly HttpClient _httpClient;
-    private readonly ILogger<ProductRepository> _logger;
     private const string ApiUrl = "https://fakestoreapi.com/products";
-
-    public ProductRepository(HttpClient httpClient, ILogger<ProductRepository> logger)
-    {
-        _httpClient = httpClient;
-        _logger = logger;
-    }
 
     public async Task<ICollection<Product>> GetProductsAsync()
     {
         try
         {
-            var response = await _httpClient.GetStringAsync(ApiUrl);
+            var response = await httpClient.GetStringAsync(ApiUrl);
             return JsonSerializer.Deserialize<List<Product>>(response, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Error fetching products: {ex.Message}");
+            logger.LogError($"Error fetching products: {ex.Message}");
             return new List<Product>();
         }
     }
