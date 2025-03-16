@@ -1,29 +1,52 @@
 ﻿document.addEventListener("DOMContentLoaded", function () {
     updateCartCountFromServer();
+    updateProductQuantities();
 
-    const cartButtons = document.querySelectorAll(".add-to-cart");
-
-    cartButtons.forEach(button => {
-        button.addEventListener("click", function () {
-            const productId = this.getAttribute("data-product-id");
-
-            fetch("/Cart/AddToCart", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded"
-                },
-                body: `productId=${productId}`
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        updateCartCount(data.cartCount);
-                        showSuccessMessage("Product added to cart!");
-                    }
-                })
-                .catch(error => console.error("Error adding to cart:", error));
-        });
+    document.addEventListener("click", function (event) {
+        if (event.target.classList.contains("add-to-cart")) {
+            let productId = event.target.getAttribute("data-product-id");
+            addToCart(productId);
+        } else if (event.target.classList.contains("increase-qty")) {
+            let productId = event.target.getAttribute("data-product-id");
+            addToCart(productId);
+        } else if (event.target.classList.contains("decrease-qty")) {
+            let productId = event.target.getAttribute("data-product-id");
+            removeFromCart(productId);
+        }
     });
+
+    function addToCart(productId) {
+        fetch("/Cart/AddToCart", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: `productId=${productId}`
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updateCartCount(data.cartCount);
+                    updateProductQuantityDisplay(productId, data.productQuantity);
+                    showSuccessMessage("Product added to cart!");
+                }
+            })
+            .catch(error => console.error("Error adding to cart:", error));
+    }
+
+    function removeFromCart(productId) {
+        fetch("/Cart/RemoveFromCart", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: `productId=${productId}`
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updateCartCount(data.cartCount);
+                    updateProductQuantityDisplay(productId, data.productQuantity);
+                }
+            })
+            .catch(error => console.error("Error removing from cart:", error));
+    }
 
     function updateCartCount(count) {
         const cartCounter = document.getElementById("cart-count");
@@ -48,6 +71,31 @@
                 updateCartCount(data.cartCount);
             })
             .catch(error => console.error("Error fetching cart count:", error));
+    }
+
+    function updateProductQuantities() {
+        document.querySelectorAll("[id^='cart-controls-']").forEach(element => {
+            let productId = element.id.replace("cart-controls-", "");
+            fetch(`/Cart/GetProductQuantity?productId=${productId}`)
+                .then(response => response.json())
+                .then(data => updateProductQuantityDisplay(productId, data.productQuantity))
+                .catch(error => console.error("Error fetching product quantity:", error));
+        });
+    }
+
+    function updateProductQuantityDisplay(productId, quantity) {
+        let container = document.getElementById(`cart-controls-${productId}`);
+        if (quantity > 0) {
+            container.innerHTML = `
+                <div class="d-flex align-items-center justify-content-between border p-2">
+                    <button class="btn btn-danger decrease-qty" data-product-id="${productId}">-</button>
+                    <span class="mx-2 bg-white px-3 py-1 border rounded">${quantity}</span>
+                    <button class="btn btn-primary increase-qty" data-product-id="${productId}">+</button>
+                </div>
+            `;
+        } else {
+            container.innerHTML = `<button class="btn btn-primary w-100 add-to-cart" data-product-id="${productId}">Add to Cart</button>`;
+        }
     }
 
     function showSuccessMessage(message) {

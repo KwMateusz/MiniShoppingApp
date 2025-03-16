@@ -1,31 +1,42 @@
-﻿@model List<Product>
+﻿@model List<MiniShoppingApp.Models.CartItem>
 
 <h2 class="text-center my-4">Shopping Cart</h2>
 
-<div class="container">
-    <div class="row">
-        @if (Model.Count == 0)
+@if (!Model.Any())
+{
+    <p class="lead text-center">Your cart is empty.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Product</th>
+            <th>Price</th>
+            <th>Quantity</th>
+            <th>Total</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var item in Model)
         {
-            <div class="text-center">
-                <p class="lead">Your cart is empty.</p>
-                <a class="btn btn-primary" asp-controller="Product" asp-action="Index">Go Shopping</a>
-            </div>
+            <tr>
+                <td>@item.Product.Title</td>
+                <td>$@item.Product.Price</td>
+                <td>@item.Quantity</td>
+                <td>$@(item.Product.Price * item.Quantity)</td>
+                <td>
+                    <div class="d-flex">
+                        <button class="btn btn-danger decrease-qty me-2" data-product-id="@item.Product.Id">-</button>
+                        <span class="px-3 py-1 border rounded">@item.Quantity</span>
+                        <button class="btn btn-primary increase-qty ms-2" data-product-id="@item.Product.Id">+</button>
+                    </div>
+                </td>
+            </tr>
         }
-        else
-        {
-            @foreach (var item in Model)
-            {
-                ViewData["IsCart"] = true;
-                <partial name="_ProductCard" model="item" />
-            }
-        }
-    </div>
+        </tbody>
+    </table>
 
-    @if (Model.Count > 0)
-    {
-        <div class="text-center mt-4">
-            <h4>Total: <strong>$@ViewBag.TotalPrice</strong></h4>
-            <a class="btn btn-success" href="#">Proceed to Checkout</a>
-        </div>
-    }
-</div>
+    <h4 class="text-end">Total: <strong>$@ViewBag.TotalPrice</strong></h4>
+}

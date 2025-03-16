@@ -1,55 +1,82 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MiniShoppingApp.Models;
 using MiniShoppingApp.Services;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace MiniShoppingApp.Controllers;
-
-public class CartController : Controller
+namespace MiniShoppingApp.Controllers
 {
-    private static List<Product> Cart = new List<Product>();
-    private readonly ProductService _productService;
-
-    public CartController(ProductService productService)
+    public class CartController : Controller
     {
-        _productService = productService;
-    }
+        // Change Cart from List<Product> to List<CartItem>
+        private static List<CartItem> Cart = new List<CartItem>();
+        private readonly ProductService _productService;
 
-    public IActionResult Index()
-    {
-        ViewBag.TotalPrice = Cart.Sum(p => p.Price);
-        return View(Cart);
-    }
-
-    [HttpGet]
-    public IActionResult GetCartCount()
-    {
-        return Json(new { cartCount = Cart.Count });
-    }
-
-
-    [HttpPost]
-    public async Task<IActionResult> AddToCart(int productId)
-    {
-        var products = await _productService.GetProductsAsync();
-        var product = products.FirstOrDefault(p => p.Id == productId);
-
-        if (product != null)
+        public CartController(ProductService productService)
         {
-            Cart.Add(product);
+            _productService = productService;
         }
 
-        // Return JSON response with updated cart count
-        return Json(new { success = true, cartCount = Cart.Count });
-    }
-
-    [HttpPost]
-    public IActionResult RemoveFromCart(int productId)
-    {
-        var product = Cart.FirstOrDefault(p => p.Id == productId);
-        if (product != null)
+        public IActionResult Index()
         {
-            Cart.Remove(product);
+            ViewBag.TotalPrice = Cart.Sum(item => item.Product.Price * item.Quantity);
+            return View(Cart);
         }
-        return RedirectToAction("Index");
+
+        [HttpGet]
+        public IActionResult GetCartCount()
+        {
+            int totalItems = Cart.Sum(item => item.Quantity);
+            return Json(new { cartCount = totalItems });
+        }
+
+        [HttpGet]
+        public IActionResult GetProductQuantity(int productId)
+        {
+            int quantity = Cart.FirstOrDefault(item => item.Product.Id == productId)?.Quantity ?? 0;
+            return Json(new { productQuantity = quantity });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddToCart(int productId)
+        {
+            var products = await _productService.GetProductsAsync();
+            var product = products.FirstOrDefault(p => p.Id == productId);
+
+            if (product != null)
+            {
+                var existingItem = Cart.FirstOrDefault(item => item.Product.Id == productId);
+                if (existingItem != null)
+                {
+                    existingItem.Quantity++; // Increase quantity if the product is already in the cart
+                }
+                else
+                {
+                    Cart.Add(new CartItem { Product = product, Quantity = 1 }); // Add new product if not in cart
+                }
+            }
+
+            return Json(new { success = true, cartCount = Cart.Sum(item => item.Quantity), productQuantity = Cart.FirstOrDefault(item => item.Product.Id == productId)?.Quantity ?? 0 });
+        }
+
+        [HttpPost]
+        public IActionResult RemoveFromCart(int productId)
+        {
+            var existingItem = Cart.FirstOrDefault(item => item.Product.Id == productId);
+            if (existingItem != null)
+            {
+                if (existingItem.Quantity > 1)
+                {
+                    existingItem.Quantity--; // Reduce quantity
+                }
+                else
+                {
+                    Cart.Remove(existingItem); // Remove item if quantity is 1
+                }
+            }
+
+            return Json(new { success = true, cartCount = Cart.Sum(item => item.Quantity), productQuantity = Cart.FirstOrDefault(item => item.Product.Id == productId)?.Quantity ?? 0 });
+        }
     }
 }
