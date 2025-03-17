@@ -1,7 +1,7 @@
 ﻿using MiniShoppingApp.Application.Interfaces;
 using MiniShoppingApp.Domain.Models;
 
-namespace MiniShoppingApp.Application.Services;
+namespace MiniShoppingApp.Infrastructure.Services;
 
 public class ProductService(IProductRepository productRepository) : IProductService
 {

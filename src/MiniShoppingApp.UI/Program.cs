@@ -1,5 +1,4 @@
 using MiniShoppingApp.Application.Interfaces;
-using MiniShoppingApp.Application.Services;
 using MiniShoppingApp.Infrastructure.Configuration;
 using MiniShoppingApp.Infrastructure.Repositories;
 using MiniShoppingApp.Infrastructure.Services;

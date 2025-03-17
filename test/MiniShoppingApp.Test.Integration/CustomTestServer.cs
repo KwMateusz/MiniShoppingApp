@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using MiniShoppingApp.Application.Interfaces;
-using MiniShoppingApp.Application.Services;
 using MiniShoppingApp.Infrastructure.Repositories;
 using MiniShoppingApp.Infrastructure.Services;
 using Moq;

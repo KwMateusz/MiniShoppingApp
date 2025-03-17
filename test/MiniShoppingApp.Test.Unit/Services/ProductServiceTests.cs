@@ -1,8 +1,8 @@
 ﻿using MiniShoppingApp.Application.Interfaces;
-using MiniShoppingApp.Application.Services;
 using MiniShoppingApp.Domain.Models;
 using Moq;
 using FluentAssertions;
+using MiniShoppingApp.Infrastructure.Services;
 
 namespace MiniShoppingApp.Test.Unit.Services;
 
