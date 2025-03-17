@@ -1,53 +1,95 @@
-﻿using MiniShoppingApp.Application.Interfaces;
+﻿using Microsoft.AspNetCore.Http; // Required for ISession
+using System.Text.Json; // Required for JSON serialization
+using MiniShoppingApp.Application.Interfaces;
 using MiniShoppingApp.Domain.Models;
 
 namespace MiniShoppingApp.Infrastructure.Services;
 
-public class CartService(IProductRepository productRepository) : ICartService
+public class CartService : ICartService
 {
-    private static readonly List<CartItem> Cart = new(); // TODO: Change implementation to not share it with other clients
+    private readonly IProductRepository _productRepository;
+    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly ISession _session;
 
-    public ICollection<CartItem> GetCartItems()
+    private const string CartSessionKey = "ShoppingCart";
+
+    public CartService(IProductRepository productRepository, IHttpContextAccessor httpContextAccessor)
     {
-        return Cart;
+        _productRepository = productRepository;
+        _httpContextAccessor = httpContextAccessor;
+        _session = _httpContextAccessor.HttpContext.Session;
     }
 
-    public int GetCartItemCount()
+    private ISession GetSession()
     {
-        return Cart.Sum(item => item.Quantity);
+        var httpContext = _httpContextAccessor.HttpContext;
+
+        if (httpContext == null)
+        {
+            throw new Exception("HTTP Context is not available. Ensure session middleware is configured.");
+        }
+
+        return httpContext.Session;
     }
 
-    public int GetProductQuantity(int productId)
+    private List<CartItem> GetCartFromSession()
     {
-        return Cart.FirstOrDefault(item => item.Product.Id == productId)?.Quantity ?? 0;
+        var session = GetSession();
+        var cartJson = session.GetString(CartSessionKey);
+
+        if (string.IsNullOrEmpty(cartJson)) // Fix for empty session value
+        {
+            return new List<CartItem>(); // Return empty cart instead of attempting to deserialize `null`
+        }
+
+        return JsonSerializer.Deserialize<List<CartItem>>(cartJson) ?? new List<CartItem>();
     }
+
+
+    private void SaveCartToSession(List<CartItem> cart)
+    {
+        var cartJson = JsonSerializer.Serialize(cart);
+        _session.SetString(CartSessionKey, cartJson);
+    }
+
+    public ICollection<CartItem> GetCartItems() => GetCartFromSession();
+
+    public int GetCartItemCount() => GetCartFromSession().Sum(item => item.Quantity);
+
+    public int GetProductQuantity(int productId) =>
+        GetCartFromSession().FirstOrDefault(item => item.Product.Id == productId)?.Quantity ?? 0;
 
     public async Task<bool> AddToCart(int productId)
     {
-        var products = await productRepository.GetProductsAsync();
-        var product = products.FirstOrDefault(p => p.Id == productId);
+        var products = await _productRepository.GetProductsAsync();
+        var product = products?.FirstOrDefault(p => p.Id == productId);
 
         if (product == null)
         {
             return false;
         }
 
-        var existingItem = Cart.FirstOrDefault(item => item.Product.Id == productId);
+        var cart = GetCartFromSession();
+        var existingItem = cart.FirstOrDefault(item => item.Product.Id == productId);
+
         if (existingItem != null)
         {
             existingItem.Quantity++;
         }
         else
         {
-            Cart.Add(new CartItem { Product = product, Quantity = 1 });
+            cart.Add(new CartItem { Product = product, Quantity = 1 });
         }
 
+        SaveCartToSession(cart);
         return true;
     }
 
     public bool RemoveFromCart(int productId)
     {
-        var existingItem = Cart.FirstOrDefault(item => item.Product.Id == productId);
+        var cart = GetCartFromSession();
+        var existingItem = cart.FirstOrDefault(item => item.Product.Id == productId);
+
         if (existingItem == null)
         {
             return false;
@@ -59,9 +101,10 @@ public class CartService(IProductRepository productRepository) : ICartService
         }
         else
         {
-            Cart.Remove(existingItem);
+            cart.Remove(existingItem);
         }
 
+        SaveCartToSession(cart);
         return true;
     }
 }

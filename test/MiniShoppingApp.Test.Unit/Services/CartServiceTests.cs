@@ -1,39 +1,63 @@
-﻿using MiniShoppingApp.Application.Interfaces;
+﻿using System.Text.Json;
+using MiniShoppingApp.Application.Interfaces;
 using MiniShoppingApp.Infrastructure.Services;
 using MiniShoppingApp.Domain.Models;
 using Moq;
 using FluentAssertions;
+using Microsoft.AspNetCore.Http;
 
 namespace MiniShoppingApp.Test.Unit.Services;
 
 public class CartServiceTests
 {
-    private readonly Mock<IProductRepository> _productRepositoryMock;
+    private readonly Mock<IProductRepository> _productRepositoryMock = new();
+    private readonly Mock<IHttpContextAccessor> _httpContextAccessorMock = new();
+    private readonly Mock<ISession> _sessionMock = new();
 
-    private ICartService _sut;
+    private readonly ICartService _sut;
 
     public CartServiceTests()
     {
-        _productRepositoryMock = new Mock<IProductRepository>();
-
-        _sut = new CartService(_productRepositoryMock.Object);
+        Dictionary<string, byte[]> sessionStorage = new(); // Simulated session storage
 
         List<Product> testProducts = new()
         {
             new Product { Id = 1, Title = "Product 1", Price = 10.0m },
             new Product { Id = 2, Title = "Product 2", Price = 15.0m },
-            new Product { Id = 3, Title = "Product 3", Price = 20.0m },
+            new Product { Id = 3, Title = "Product 3", Price = 20.0m }
         };
 
+        // Mock Product Repository to return test products
         _productRepositoryMock.Setup(repo => repo.GetProductsAsync()).ReturnsAsync(testProducts);
+
+        // Configure session mock
+        _sessionMock.Setup(s => s.Set(It.IsAny<string>(), It.IsAny<byte[]>()))
+            .Callback<string, byte[]>((key, value) => sessionStorage[key] = value);
+
+        _sessionMock.Setup(s => s.TryGetValue(It.IsAny<string>(), out It.Ref<byte[]>.IsAny))
+            .Returns((string key, out byte[] value) =>
+            {
+                if (sessionStorage.TryGetValue(key, out var sessionData))
+                {
+                    value = sessionData;
+                    return true;
+                }
+
+                value = JsonSerializer.SerializeToUtf8Bytes(new List<CartItem>()); // Return empty cart as JSON
+                return true;
+            });
+
+        // Mock HttpContextAccessor to provide session
+        var httpContextMock = new Mock<HttpContext>();
+        httpContextMock.Setup(ctx => ctx.Session).Returns(_sessionMock.Object);
+        _httpContextAccessorMock.Setup(a => a.HttpContext).Returns(httpContextMock.Object);
+
+        _sut = new CartService(_productRepositoryMock.Object, _httpContextAccessorMock.Object);
     }
 
     [Fact]
     public async Task AddToCart_ShouldAddNewItem_WhenProductExists()
     {
-        // Arrange
-        _sut = new CartService(_productRepositoryMock.Object);
-
         // Act
         var success = await _sut.AddToCart(1);
         var cartItems = _sut.GetCartItems();
@@ -49,7 +73,6 @@ public class CartServiceTests
     public async Task AddToCart_ShouldIncreaseQuantity_WhenProductAlreadyInCart()
     {
         // Arrange
-        _sut = new CartService(_productRepositoryMock.Object);
         await _sut.AddToCart(1); // First add
 
         // Act
@@ -65,9 +88,6 @@ public class CartServiceTests
     [Fact]
     public async Task AddToCart_ShouldReturnFalse_WhenProductDoesNotExist()
     {
-        // Arrange
-        _sut = new CartService(_productRepositoryMock.Object);
-
         // Act
         var success = await _sut.AddToCart(999); // Non-existent product
 
@@ -80,7 +100,6 @@ public class CartServiceTests
     public async Task RemoveFromCart_ShouldDecreaseQuantity_WhenMultipleExists()
     {
         // Arrange
-        _sut = new CartService(_productRepositoryMock.Object);
         await _sut.AddToCart(1);
         await _sut.AddToCart(1);
 
@@ -98,7 +117,6 @@ public class CartServiceTests
     public async Task RemoveFromCart_ShouldRemoveItem_WhenOnlyOneExists()
     {
         // Arrange
-        _sut = new CartService(_productRepositoryMock.Object);
         await _sut.AddToCart(1);
 
         // Act
@@ -111,24 +129,19 @@ public class CartServiceTests
     }
 
     [Fact]
-    public Task RemoveFromCart_ShouldReturnFalse_WhenItemNotInCart()
+    public void RemoveFromCart_ShouldReturnFalse_WhenItemNotInCart()
     {
-        // Arrange
-        _sut = new CartService(_productRepositoryMock.Object);
-
         // Act
         var success = _sut.RemoveFromCart(1);
 
         // Assert
         success.Should().BeFalse();
-        return Task.CompletedTask;
     }
 
     [Fact]
     public async Task GetCartItemCount_ShouldReturnCorrectTotalQuantity()
     {
         // Arrange
-        _sut = new CartService(_productRepositoryMock.Object);
         await _sut.AddToCart(1);
         await _sut.AddToCart(1);
         await _sut.AddToCart(2);
@@ -144,7 +157,6 @@ public class CartServiceTests
     public async Task GetProductQuantity_ShouldReturnCorrectQuantity()
     {
         // Arrange
-        _sut = new CartService(_productRepositoryMock.Object);
         await _sut.AddToCart(1);
         await _sut.AddToCart(1);
         await _sut.AddToCart(2);
