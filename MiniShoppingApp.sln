@@ -17,6 +17,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{0670B3EE-7
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiniShoppingApp.Test.Unit", "test\MiniShoppingApp.Test.Unit\MiniShoppingApp.Test.Unit.csproj", "{DD94ABA5-C2FE-4A57-81D0-8EFEFD3AD2BF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiniShoppingApp.Test.Integration", "test\MiniShoppingApp.Test.Integration\MiniShoppingApp.Test.Integration.csproj", "{3B273A6F-D8BA-45A2-BAA9-F16D49E076BA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -46,6 +48,10 @@ Global
 		{DD94ABA5-C2FE-4A57-81D0-8EFEFD3AD2BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DD94ABA5-C2FE-4A57-81D0-8EFEFD3AD2BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DD94ABA5-C2FE-4A57-81D0-8EFEFD3AD2BF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B273A6F-D8BA-45A2-BAA9-F16D49E076BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B273A6F-D8BA-45A2-BAA9-F16D49E076BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B273A6F-D8BA-45A2-BAA9-F16D49E076BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B273A6F-D8BA-45A2-BAA9-F16D49E076BA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{5018FD22-2CD1-4B0F-856E-AA762ABDA1C2} = {BC44AFAA-3BF6-4EE3-8A94-CAC792E4CD5F}
@@ -53,5 +59,6 @@ Global
 		{37D590F9-2B6D-4677-B159-159EB0F916DC} = {BC44AFAA-3BF6-4EE3-8A94-CAC792E4CD5F}
 		{6AA68000-D88C-46A1-AACA-526195F14EDF} = {BC44AFAA-3BF6-4EE3-8A94-CAC792E4CD5F}
 		{DD94ABA5-C2FE-4A57-81D0-8EFEFD3AD2BF} = {0670B3EE-73C5-4AC0-A15F-45BC476F785C}
+		{3B273A6F-D8BA-45A2-BAA9-F16D49E076BA} = {0670B3EE-73C5-4AC0-A15F-45BC476F785C}
 	EndGlobalSection
 EndGlobal
